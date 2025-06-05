@@ -1,9 +1,12 @@
 #include <definition.h>
-void lcdPrint(SimpleLCD &lcdDisplay, const char* str) {
+void lcdPrint(SimpleLCD &lcdDisplay, const char *str)
+{
     lcdDisplay.writeCommand(CMD_CLEAR);
     lcdDisplay.writeCommand(CMD_HOME);
-    while (*str) {
-        if(*str == '\n') {
+    while (*str)
+    {
+        if (*str == '\n')
+        {
             lcdDisplay.writeCommand(CMD_SECOND_LINE);
             str++;
         }
@@ -21,12 +24,13 @@ extern "C" void app_main()
     char buffer[100];
     sprintf(buffer, "This is a Test");
     lcdPrint(lcd, buffer);
-    /*Ultrasonic usonic;
+
+    Ultrasonic usonic;
     usonic.setup(echo, trig, ch_trig, US_config);
-    
+
     // Uncomment the following code to use the Ultrasonic sensor
     // Ultrasonic sensor part
-    
+
     while (1)
     {
         current_time = esp_timer_get_time();
@@ -34,29 +38,39 @@ extern "C" void app_main()
         { // 1 second
             previous_time = current_time;
             float dist = usonic.getDistance() / 10;
-            if (dist > 40){
-                //Not valid distance, it will be ignored
+            if (dist > 40)
+            {
+                // Not valid distance, it will be ignored
                 fprintf(stdout, "Distance is too far, ignoring...\n");
                 break;
             }
-            else{
+
+            else if (dist < 20)
+            {
+                printf("Collision imminent!\n");
+                break;
+            }
+            else
+            {
                 fprintf(stdout, "Distance: %.2f cm\n", dist);
                 break;
-
             }
-            }
-           */
-        //}
+        }
+    }
+}
+// colision inminente
+// stop both motors
 
-            // Uncoment for the linefollower part
-            // Linefollower part supose 8 sensors
-            /*
-            uint8_t left_sensor = 34;   // GPIO pin for left sensor
-            uint8_t right_sensor = 35;  // GPIO pin for right sensor
-            SimpleGPIO left_sensor_gpio, rihgt_sensor_gpio;
-            left_sensor_gpio.setup(left_sensor, GPI);
-            rihgt_sensor_gpio.setup(right_sensor, GPO);
-            */
-       // }
+//}
 
+// Uncoment for the linefollower part
+// Linefollower part supose 8 sensors
+/*
+uint8_t left_sensor = 34;   // GPIO pin for left sensor
+uint8_t right_sensor = 35;  // GPIO pin for right sensor
+SimpleGPIO left_sensor_gpio, rihgt_sensor_gpio;
+left_sensor_gpio.setup(left_sensor, GPI);
+rihgt_sensor_gpio.setup(right_sensor, GPO);
+*/
+// }
 }
