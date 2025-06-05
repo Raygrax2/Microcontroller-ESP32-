@@ -23,4 +23,5 @@ TimerConfig US_config{
     .bit_resolution = LEDC_TIMER_14_BIT,
     .mode = LEDC_LOW_SPEED_MODE
 };
+
 #endif
