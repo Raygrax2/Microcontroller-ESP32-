@@ -19,14 +19,15 @@ extern "C" void app_main()
 {
     esp_task_wdt_deinit();
     SimpleLCD lcd;
+    Ultrasonic usonic;
     uint8_t pinArrayLCD[11] = {4, 16, 17, 18, 19, 21, 22, 23, 25, 26, 27};
+    //setups
     lcd.setup(pinArrayLCD);
-    char buffer[100];
+    usonic.setup(echo, trig, ch_trig, US_config);
+    char buffer[100]; 
     sprintf(buffer, "This is a Test");
     lcdPrint(lcd, buffer);
 
-    Ultrasonic usonic;
-    usonic.setup(echo, trig, ch_trig, US_config);
 
     // Uncomment the following code to use the Ultrasonic sensor
     // Ultrasonic sensor part
@@ -38,6 +39,7 @@ extern "C" void app_main()
         { // 1 second
             previous_time = current_time;
             float dist = usonic.getDistance() / 10;
+            
             if (dist > 40)
             {
                 // Not valid distance, it will be ignored
@@ -73,4 +75,4 @@ left_sensor_gpio.setup(left_sensor, GPI);
 rihgt_sensor_gpio.setup(right_sensor, GPO);
 */
 // }
-}
+
