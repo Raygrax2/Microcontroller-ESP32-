@@ -37,18 +37,23 @@ extern "C" void app_main()
     
 
     //codigo provisional para motores
-    SimpleGPIO motor_ini1, motorini2, pwmA, stby;
+    SimpleGPIO motorA_ini1, motorA_ini2, MotorB_ini1, MotorB_ini2, pwmA, stby;
+    SimpleGPIO motorA_ini2; // Declare motorA_ini2
     pwmA.setup(18, GPO);
-    motorini2.setup(5, GPO);
-    motor_ini1.setup(17, GPO);
+    motorA_ini2.setup(5, GPO);
+    motorA_ini1.setup(17, GPO);
+    MotorB_ini1.setup(21, GPO);
+    MotorB_ini2.setup(22, GPO);
     stby.setup(16, GPO);
     stby.set(1); // Enable the motor driver
     AGVState state = STATE_IDLE; // Initialize state
     while (1)
     {
         current_time = esp_timer_get_time();
-        motor_ini1.set(1); // Set motor 1 to high
-        motorini2.set(0); // Set motor 2 to high
+        motorA_ini1.set(1); // Set motor 1 to high
+        motorA_ini2.set(0); // Set motor 2 to high
+        MotorB_ini1.set(1); // Set motor 3 to high
+        MotorB_ini2.set(0); // Set motor 4 to high
         SimplePWM pwm;
         pwm.setup(18, 0, &US_config, false); // Setup PWM on pin 18
         pwm.setDigitalLevel(1000); // Set PWM duty cycle to 1000 (out of 4095)
@@ -86,32 +91,44 @@ extern "C" void app_main()
                     break;
                 case STATE_MOVING_FORWARD:
                     // Move forward
-                    motor_ini1.set(1); // Set motor 1 to high
-                    motorini2.set(0); // Set motor 2 to high
+                    motorA_ini1.set(1); // Set motor 1 to high
+                    motorA_ini2.set(0); // Set motor 2 to high
+                    MotorB_ini1.set(1); // Set motor 3 to high
+                    MotorB_ini2.set(0); // Set motor 4 to high
                     pwm.setDigitalLevel(1000); // Set PWM duty cycle to 1000 (out of 4095)
                     break;
                 case STATE_TURNING_LEFT:
-                    // Turn left
-                    motor_ini1.set(0); // Set motor 1 to low
-                    motorini2.set(1); // Set motor 2 to high
+                    // Considering the motor a is on the left side and motor b is on the right side
+                    motorA_ini1.set(1); // Set motor 1 to high
+                    motorA_ini2.set(0); // Set motor 2 to high
+                    MotorB_ini1.set(0); // Set motor 3 to high
+                    MotorB_ini2.set(0); // Set motor 4 to high
                     pwm.setDigitalLevel(1000); // Set PWM duty cycle to 1000 (out of 4095)
                     break;
                 case STATE_TURNING_RIGHT:
-                    // Turn right
-                    motor_ini1.set(1); // Set motor 1 to high
-                    motorini2.set(0); // Set motor 2 to low
+                // Considering the motor a is on the left side and motor b is on the right side
+                    motorA_ini1.set(0); // Set motor 1 to high
+                    motorA_ini2.set(0); // Set motor 2 to high
+                    MotorB_ini1.set(1); // Set motor 3 to high
+                    MotorB_ini2.set(0); // Set motor 4 to high
                     pwm.setDigitalLevel(1000); // Set PWM duty cycle to 1000 (out of 4095)
                     break;
                 case STATE_STOPPED:
                     // Stop both motors
-                    motor_ini1.set(0); // Set motor 1 to low
-                    motorini2.set(0); // Set motor 2 to low
+                    motorA_ini1.set(0); // Set motor 1 to high
+                    motorA_ini2.set(0); // Set motor 2 to high
+                    MotorB_ini1.set(0); // Set motor 3 to high
+                    MotorB_ini2.set(0); // Set motor 4 to high
                     pwm.setDigitalLevel(0); // Set PWM duty cycle to 0 (stop)
+                    // if the ultrasonic sensor changes to not detect a collision, change state to moving forward
+                    if (dist > 20) {
+                        state = STATE_MOVING_FORWARD; // Change state to moving forward
+                    }
                     break;
                 case STATE_COLLISION_DETECTED:
                     // Collision detected, stop both motors
-                    motor_ini1.set(0); // Set motor 1 to low
-                    motorini2.set(0); // Set motor 2 to low
+                    motorA_ini1.set(0); // Set motor 1 to low
+                    motorA_ini2.set(0); // Set motor 2 to low
                     pwm.setDigitalLevel(0); // Set PWM duty cycle to 0 (stop)
                     
                     state = STATE_STOPPED; // Change state to stopped
