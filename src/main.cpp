@@ -25,20 +25,15 @@ typedef enum {
 extern "C" void app_main()
 {
     esp_task_wdt_deinit();
-    SimpleLCD lcd;
     Ultrasonic usonic;
-    uint8_t pinArrayLCD[11] = {4, 16, 17, 18, 19, 21, 22, 23, 25, 26, 27};
+    SimpleGPIO motorA_ini1, motorA_ini2, MotorB_ini1, MotorB_ini2, pwmA, stby;
+    SimplePWM pwm;
+    SimpleGPIO motorA_ini2; // Declare motorA_ini2
     //setups
-    lcd.setup(pinArrayLCD);
     usonic.setup(echo, trig, ch_trig, US_config);
-    char buffer[100];
-    sprintf(buffer, "This is a Test");
-    lcdPrint(lcd, buffer);
     
 
     //codigo provisional para motores
-    SimpleGPIO motorA_ini1, motorA_ini2, MotorB_ini1, MotorB_ini2, pwmA, stby;
-    SimpleGPIO motorA_ini2; // Declare motorA_ini2
     pwmA.setup(18, GPO);
     motorA_ini2.setup(5, GPO);
     motorA_ini1.setup(17, GPO);
@@ -47,21 +42,15 @@ extern "C" void app_main()
     stby.setup(16, GPO);
     stby.set(1); // Enable the motor driver
     AGVState state = STATE_IDLE; // Initialize state
+    current_time = esp_timer_get_time();
+    motorA_ini1.set(1); // Set motor 1 to high
+    motorA_ini2.set(0); // Set motor 2 to high
+    MotorB_ini1.set(1); // Set motor 3 to high
+    MotorB_ini2.set(0); // Set motor 4 to high
+    pwm.setup(18, 0, &US_config, false); // Setup PWM on pin 18
+    pwm.setDigitalLevel(1000); // Set PWM duty cycle to 1000 (out of 4095)
     while (1)
     {
-        current_time = esp_timer_get_time();
-        motorA_ini1.set(1); // Set motor 1 to high
-        motorA_ini2.set(0); // Set motor 2 to high
-        MotorB_ini1.set(1); // Set motor 3 to high
-        MotorB_ini2.set(0); // Set motor 4 to high
-        SimplePWM pwm;
-        pwm.setup(18, 0, &US_config, false); // Setup PWM on pin 18
-        pwm.setDigitalLevel(1000); // Set PWM duty cycle to 1000 (out of 4095)
-        // pwm.setDuty(0.5); // Set PWM duty cycle to 50%
-        // wait 2 sec
-        
-
-           // ...existing code...
             if (current_time - previous_time >= 1000000)
             { // 1 second
                 previous_time = current_time;
@@ -126,11 +115,6 @@ extern "C" void app_main()
                     }
                     break;
                 case STATE_COLLISION_DETECTED:
-                    // Collision detected, stop both motors
-                    motorA_ini1.set(0); // Set motor 1 to low
-                    motorA_ini2.set(0); // Set motor 2 to low
-                    pwm.setDigitalLevel(0); // Set PWM duty cycle to 0 (stop)
-                    
                     state = STATE_STOPPED; // Change state to stopped
                     break;
                 
@@ -138,6 +122,6 @@ extern "C" void app_main()
                     break;
                 }
             }
-    // ...existing code...
+    
     }
 }
