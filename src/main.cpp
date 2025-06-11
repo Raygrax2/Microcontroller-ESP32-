@@ -29,11 +29,16 @@ extern "C" void app_main()
     SimpleGPIO motorA_ini1, motorA_ini2, MotorB_ini1, MotorB_ini2, pwmA, stby;
     SimplePWM pwm;
     SimpleGPIO motorA_ini2; // Declare motorA_ini2
+    SimpleADC LCell;
+
     //setups
     usonic.setup(echo, trig, ch_trig, US_config);
     
 
-    //codigo provisional para motores
+    //Load cell for weight measurement
+    LCell.setup(34); // Setup load cell on GPIO 34
+    printf("Load cell setup complete.\n");
+    
     pwmA.setup(18, GPO);
     motorA_ini2.setup(5, GPO);
     motorA_ini1.setup(17, GPO);
@@ -54,8 +59,10 @@ extern "C" void app_main()
             if (current_time - previous_time >= 1000000)
             { // 1 second
                 previous_time = current_time;
-    
-                // --- Collision detection logic ---
+                
+                float WEight =LCell.read(ADC_READ_RAW);
+                printf("Load cell reading: %d\n",WEight);
+                /*// --- Collision detection logic ---
                 float dist = usonic.getDistance() / 10;
                 if (dist > 40)
                 {
@@ -76,7 +83,7 @@ extern "C" void app_main()
                 switch (state)
                 {
                 case STATE_IDLE:
-                    /* code */
+                    
                     break;
                 case STATE_MOVING_FORWARD:
                     // Move forward
@@ -121,7 +128,12 @@ extern "C" void app_main()
                 default:
                     break;
                 }
+                    
+
             }
+                */
+               
     
     }
+
 }
